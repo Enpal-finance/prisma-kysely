@@ -7,6 +7,8 @@ import { generateDatabaseType } from "~/helpers/generateDatabaseType";
 import { generateFiles } from "~/helpers/generateFiles";
 import { generateImplicitManyToManyModels } from "~/helpers/generateImplicitManyToManyModels";
 import { generateModel } from "~/helpers/generateModel";
+import { generateCrudTypes } from "~/helpers/generateCrudTypes";
+import { generateClient } from "~/helpers/generateClient";
 import { sorted } from "~/utils/sorted";
 import { validateConfig } from "~/utils/validateConfig";
 import { writeFileSafely } from "~/utils/writeFileSafely";
@@ -45,11 +47,14 @@ generatorHandler({
       options.dmmf.datamodel.models
     );
 
+
     // Generate model types
     let models = sorted(
       [...options.dmmf.datamodel.models, ...implicitManyToManyModels],
       (a, b) => a.name.localeCompare(b.name)
     ).map((m) => generateModel(m, config));
+
+    const cruds = generateCrudTypes(models);
 
     // Extend model table names with schema names if using multi-schemas
     if (options.generator.previewFeatures?.includes("multiSchema")) {
@@ -65,22 +70,36 @@ generatorHandler({
     // Parse it all into a string. Either 1 or 2 files depending on user config
     const files = generateFiles({
       databaseType,
-      modelDefinitions: models.map((m) => m.definition),
+      modelDefinitions: [...models.map((m) => m.definition), ...cruds],
       enumNames: options.dmmf.datamodel.enums.map((e) => e.name),
       enums,
       enumsOutfile: config.enumFileName,
       typesOutfile: config.fileName,
     });
 
+    const createClient = (async () => {
+      const clientLocation = config.fileName.replace('types', "client")
+      const writeLocation = path.join(
+        options.generator.output?.value || "",
+        clientLocation
+      );
+
+      const clientStr = generateClient(models, cruds);
+
+      return await writeFileSafely(writeLocation, clientStr)
+    });
+
     // And write it to a file!
     await Promise.allSettled(
-      files.map(({ filepath, content }) => {
+      [...files.map(({ filepath, content }) => {
         const writeLocation = path.join(
           options.generator.output?.value || "",
           filepath
         );
         return writeFileSafely(writeLocation, content);
-      })
+      }),
+      createClient()
+      ]
     );
   },
 });

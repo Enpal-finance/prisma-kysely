@@ -21,7 +21,7 @@ export const generateFile = (
 
   const leader = `import type { ColumnType${
     result.includes("GeneratedAlways") ? ", GeneratedAlways" : ""
-  } } from "kysely";
+  }, Updateable, Insertable } from "kysely";
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;

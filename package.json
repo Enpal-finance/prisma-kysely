@@ -10,9 +10,7 @@
     "dist"
   ],
   "license": "MIT",
-  "bin": {
-    "prisma-kysely": "dist/bin.js"
-  },
+  "bin": "dist/bin.js",
   "scripts": {
     "start": "node dist/bin.js",
     "dev": "tspc --watch",
