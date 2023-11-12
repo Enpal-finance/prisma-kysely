@@ -1,8 +1,8 @@
 {
-  "name": "prisma-kysely-enpal",
-  "description": "Generate Kysely database types from a Prisma schema",
+  "name": "@enpal-finance/prisma-kysely",
+  "description": "Generate Kysely database types & client from a Prisma schema",
   "repository": {
-    "url": "https://github.com/valtyr/prisma-kysely"
+    "url": "https://github.com/Enpal-finance/prisma-kysely"
   },
   "version": "1.7.1",
   "main": "dist/generator.js",
