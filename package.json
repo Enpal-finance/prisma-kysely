@@ -1,5 +1,5 @@
 {
-  "name": "prisma-kysely",
+  "name": "prisma-kysely-enpal",
   "description": "Generate Kysely database types from a Prisma schema",
   "repository": {
     "url": "https://github.com/valtyr/prisma-kysely"
