@@ -84,7 +84,7 @@ generatorHandler({
         clientLocation
       );
 
-      const clientStr = generateClient(models, cruds);
+      const clientStr = generateClient(models, cruds, config);
 
       return await writeFileSafely(writeLocation, clientStr)
     });
