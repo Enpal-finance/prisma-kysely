@@ -1,38 +1,38 @@
-import { generateCrudTypes } from "~/helpers/generateCrudTypes";
-import { generateModel } from "~/helpers/generateModel";
-import { createCamelCaseMapper } from "~/utils/camelCase";
+import type { generateCrudTypes } from "~/helpers/generateCrudTypes";
+import type { generateModel } from "~/helpers/generateModel";
+import { normalizeCase } from "~/utils/normalizeCase";
 
-const snakeToCamel = createCamelCaseMapper();
 
-export const generateClient = (models: Array<ReturnType<typeof generateModel>>, cruds: ReturnType<typeof generateCrudTypes>) => {
+export const generateClient = (models: Array<ReturnType<typeof generateModel>>, cruds: ReturnType<typeof generateCrudTypes>, config: Config) => {
   const allTables = [];
+
   for (const { typeName, tableName } of models) {
     const modelTemplate = `
-    const ${snakeToCamel(tableName)} = {
-      update: (data: Update${typeName}) => {
-        return client.updateTable("${tableName}").set(data);
-      },
+    const ${normalizeCase(tableName, config)
+      } = {
+    update: (data: Update${typeName}) => {
+      return client.updateTable("${tableName}").set(data);
+    },
       insert: (data: New${typeName}) => {
         return client.insertInto("${tableName}").values(data);
       },
-      select: (data: Select${typeName}) => {
-        return client.selectFrom("${tableName}").select(data);
-      },
-      delete: () => {
-        return client.deleteFrom("${tableName}");
-      },
+        select: client.selectFrom("${tableName}").select,
+          selectAll: client.selectFrom("${tableName}").selectAll,
+            delete: () => {
+              return client.deleteFrom("${tableName}");
+            },
     };
-`;
+  `;
 
     allTables.push(modelTemplate);
   }
 
-  const returnStmt = models.map(({ tableName }) => snakeToCamel(tableName)).join(', ');
-  const imports = cruds.map((t) => `  ${t.name.escapedText}`).sort(compareByLength).join(',\n');
+  const returnStmt = models.map(({ tableName }) => normalizeCase(tableName, config)).join(', ');
+  const imports = cruds.map((t) => `  ${t.name.escapedText} `).sort(compareByLength).join(',\n');
 
   const clientTemplate = `
-import { Dialect, Kysely } from "kysely";
-import { \n  DB,\n${imports} 
+  import { Dialect, Kysely } from "kysely";
+  import { \n  DB, \n${imports}
 } from './types';
 
 export const Database = {
@@ -41,9 +41,12 @@ export const Database = {
       dialect,
     });
 ${allTables.join('')}
-    return { client, ${returnStmt} };
-  }
+    return { client, ${returnStmt}
+  };
+}
 };
+
+export type KyselyClient = ReturnType<typeof Database.init>;
 `;
 
   return clientTemplate;
