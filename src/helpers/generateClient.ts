@@ -1,7 +1,7 @@
 import type { generateCrudTypes } from "~/helpers/generateCrudTypes";
 import type { generateModel } from "~/helpers/generateModel";
 import { normalizeCase } from "~/utils/normalizeCase";
-
+import type { Config } from "~/utils/validateConfig";
 
 export const generateClient = (models: Array<ReturnType<typeof generateModel>>, cruds: ReturnType<typeof generateCrudTypes>, config: Config) => {
   const allTables = [];
