@@ -1,6 +1,5 @@
 import ts from "typescript";
-
-import { generateModel } from "~/helpers/generateModel";
+import type { generateModel } from "~/helpers/generateModel";
 
 /**
  * Some of Prisma's default values are implemented in
@@ -46,6 +45,6 @@ export const generateCrudTypes = (models: Array<ReturnType<typeof generateModel>
     allTheStmts.push(newStmt);
     allTheStmts.push(updateStmt);
   }
-  
+
   return allTheStmts;
 };
